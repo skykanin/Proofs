@@ -47,6 +47,13 @@ Proof.
   - simpl. rewrite IHa', <- plus_n_Sm. reflexivity.
 Qed.
 
+Theorem add_assoc: forall a b c: nat, a + (b + c) = (a + b) + c.
+Proof.
+  intros a b c. induction a as [| a' IHa'].
+  - reflexivity.
+  - simpl. rewrite IHa'. reflexivity.
+Qed.
+
 Fixpoint zerovec (n : nat) : natvec n :=
   match n with
   | 0 => []
@@ -83,24 +90,31 @@ Qed.
 
 Require Import Coq.Program.Equality.
 
-Theorem add_commutative: forall n : nat, forall u v: natvec n,
+Theorem addvec_commutative: forall n : nat, forall u v: natvec n,
     u ⊕ v = v ⊕ u.
 Proof.
-  intros u v. induction u as [| n u' IHu'].
+  intros u v. induction u as [| n IHu'].
   - dependent inversion v.
     intros v0. simpl.
     rewrite add_empty. reflexivity.
   - intros v0.
     dependent destruction v.
     dependent destruction v0.
-    simpl. rewrite u', add_com. reflexivity.
+    simpl. rewrite IHu', add_com. reflexivity.
+Qed.
+                                        
+Theorem addvec_assoc : forall n, forall u v w: natvec n,
+    u ⊕ (v ⊕ w) = (u ⊕ v) ⊕ w.
+Proof.
+  intros u v w. induction u as [| n IHu'].
+  - apply natvec_elim_0, natvec_elim_0.
+    rewrite add_empty, add_empty.
+    reflexivity.
+  - intros w0.
+    dependent destruction v.
+    dependent destruction w.
+    dependent destruction w0.
+    simpl. rewrite add_assoc, IHu'.
+    reflexivity.
 Qed.
     
-                                    
-
-(*Theorem add_assoc : forall n, forall u v w: natvec n,
-    u + (v + w) = (u + v) + w.
-Proof.
-  intros u v w. induction u as [| n u' IHu'].
-  - reflexivity.
-  -*)
