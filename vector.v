@@ -44,7 +44,7 @@ Theorem add_com: forall a b: nat, a + b = b + a.
 Proof.
   intros a b. induction a as [| a' IHa'].
   - simpl. rewrite <- plus_n_O. reflexivity.
-  - simpl. rewrite IHa'. rewrite <- plus_n_Sm. reflexivity.
+  - simpl. rewrite IHa', <- plus_n_Sm. reflexivity.
 Qed.
 
 Fixpoint zerovec (n : nat) : natvec n :=
@@ -81,6 +81,8 @@ Proof.
   reflexivity.
 Qed.
 
+Require Import Coq.Program.Equality.
+
 Theorem add_commutative: forall n : nat, forall u v: natvec n,
     u ⊕ v = v ⊕ u.
 Proof.
@@ -89,6 +91,11 @@ Proof.
     intros v0. simpl.
     rewrite add_empty. reflexivity.
   - intros v0.
+    dependent destruction v.
+    dependent destruction v0.
+    simpl. rewrite u', add_com. reflexivity.
+Qed.
+    
                                     
 
 (*Theorem add_assoc : forall n, forall u v w: natvec n,
