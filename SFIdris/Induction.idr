@@ -36,3 +36,9 @@ plus_comm (S k) m =
   let iH = plus_comm k m in
     rewrite iH in
     rewrite plus_n_Sm m k in Refl
+    
+plus_assoc : (n, m, p : Nat) -> n + (m + p) = (n + m) + p
+plus_assoc Z m p = rewrite plus_comm m p in Refl
+plus_assoc (S k) m p = 
+  let iH = plus_assoc k m p in 
+  rewrite iH in Refl
