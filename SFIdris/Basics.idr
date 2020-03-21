@@ -1,7 +1,5 @@
 module Basics
 
-import Prelude
-
 %access public export
 %default total
 
@@ -106,10 +104,12 @@ namespace Playground2
   testMult1 : (Playground2.mult 3 3) = 9
   testMult1 = Refl
   
+  {-
   minus : (n, m : Nat) -> Nat
   minus Z      _    = Z
   minus n      Z    = n
   minus (S k) (S j) = Playground2.minus k j
+  -}
   
   exp : (base, power : Nat) -> Nat
   exp base Z = S Z
@@ -181,7 +181,7 @@ not_involutive True = Refl
 not_involutive False = Refl
 
 andb_true_elim_2 : (b, c : Bool) -> (b && c = True) -> c = True
-andb_true_elim_2 False True prf = rewrite prf in ?hole
+andb_true_elim_2 False True prf = ?hole
 andb_true_elim_2 True True prf = Refl
 andb_true_elim_2 True False prf = rewrite prf in Refl
 andb_true_elim_2 False False prf = rewrite prf in Refl
