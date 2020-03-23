@@ -91,3 +91,19 @@ mult_comm (S k) n =
   let iH = mult_comm k n in
   rewrite iH in
   rewrite mult_plus_n n k in Refl
+  
+mult_1_l : (n : Nat) -> n * 1 = n
+mult_1_l Z = Refl
+mult_1_l (S k) = rewrite mult_1_l k in Refl
+
+mult_plus_distr_r : (n, m, p : Nat) -> (n + m) * p = (n * p) + (m * p)
+mult_plus_distr_r Z m p = Refl
+mult_plus_distr_r (S k) m p =
+  rewrite mult_plus_distr_r k m p in
+  rewrite plus_assoc p (k * p) (m * p) in Refl
+
+mult_assoc : (n, m, p : Nat) -> n * (m * p) = (n * m) * p
+mult_assoc Z m p = Refl
+mult_assoc (S k) m p =
+  rewrite mult_assoc k m p in
+  rewrite sym (mult_plus_distr_r m (k * m) p) in Refl
