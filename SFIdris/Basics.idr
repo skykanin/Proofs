@@ -180,11 +180,16 @@ not_involutive : (b : Bool) -> not (not b) = b
 not_involutive True = Refl
 not_involutive False = Refl
 
+andb_t_t : (b = True) -> b = True
+andb_t_t prf = rewrite prf in Refl
+
+andb_f_t : (False = True) -> b = True
+andb_f_t prf {b = False} = rewrite prf in Refl
+andb_f_t prf {b = True} = Refl
+
 andb_true_elim_2 : (b, c : Bool) -> (b && c = True) -> c = True
-andb_true_elim_2 False True prf = ?hole
-andb_true_elim_2 True True prf = Refl
-andb_true_elim_2 True False prf = rewrite prf in Refl
-andb_true_elim_2 False False prf = rewrite prf in Refl
+andb_true_elim_2 False c = andb_f_t
+andb_true_elim_2 True c = andb_t_t
 
 zero_nbeq_plus_1 : (n : Nat) -> 0 == (n + 1) = False
 zero_nbeq_plus_1 Z = Refl
