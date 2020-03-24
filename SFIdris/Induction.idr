@@ -115,4 +115,5 @@ beq_nat_refl (S k) = rewrite beq_nat_refl k in Refl
 plus_swap' : (n, m, p : Nat) -> n + (m + p) = m + (n + p)
 plus_swap' n m p =
   rewrite plus_assoc n m p in
-  let o = replace (plus_comm n m) (n + m) in ?h
+  rewrite plus_assoc m n p in
+  replace (plus_comm n m) {P = \x => (n + m) + p = x + p} Refl
