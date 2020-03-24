@@ -107,3 +107,12 @@ mult_assoc Z m p = Refl
 mult_assoc (S k) m p =
   rewrite mult_assoc k m p in
   rewrite sym (mult_plus_distr_r m (k * m) p) in Refl
+  
+beq_nat_refl : (n : Nat) -> True = n == n
+beq_nat_refl Z = Refl
+beq_nat_refl (S k) = rewrite beq_nat_refl k in Refl
+
+plus_swap' : (n, m, p : Nat) -> n + (m + p) = m + (n + p)
+plus_swap' n m p =
+  rewrite plus_assoc n m p in
+  let o = replace (plus_comm n m) (n + m) in ?h
