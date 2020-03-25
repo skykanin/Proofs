@@ -122,10 +122,7 @@ Bag = NatList
 
 count : (v : Nat) -> (s : Bag) -> Nat
 count _ [] = Z
-count v (h :: t) =
-  case beq_nat h v of 
-    True => S (count v t)
-    False => count v t
+count v (h :: t) = if beq_nat h v then S (count v t) else count v t
 
 test_count1 : count 1 [1,2,3,1,4,1] = 3
 test_count1 = Refl
@@ -161,12 +158,9 @@ test_member2 = Refl
 remove_one : (v : Nat) -> (s : Bag) -> Bag
 remove_one _ [] = []
 remove_one v l@(h :: t) =
-  case member v l of
-    True => 
-      case beq_nat h v of
-        True => t
-        False =>  h :: remove_one v t
-    False => l
+  case beq_nat h v of
+    True => t
+    False =>  h :: remove_one v t
 
 test_remove_one1 : count 5 (remove_one 5 [2,1,5,4,1]) = 0
 test_remove_one1 = Refl
@@ -183,9 +177,7 @@ test_remove_one4 = Refl
 remove_all : (v : Nat) -> (s : Bag) -> Bag
 remove_all v [] = []
 remove_all v l@(h :: t) =
-  if member v l
-  then if h == v then remove_all v t else h :: remove_all v t
-  else l
+  if beq_nat h v then remove_all v t else h :: remove_all v t
 
 test_remove_all1 : count 5 (remove_all 5 [2,1,5,4,1]) = 0
 test_remove_all1 = Refl
