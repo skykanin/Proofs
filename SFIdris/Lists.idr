@@ -87,11 +87,11 @@ test_oddmembers : oddmembers [0,1,0,2,3,0,0] = [1,3]
 test_oddmembers = Refl
 
 countoddmembers : (l : NatList) -> Nat
-countoddmembers [] = 0
+countoddmembers [] = Z
 countoddmembers (h :: t) =
-  if evenb h
-  then countoddmembers t
-  else 1 + countoddmembers t
+  if oddb h
+  then S (countoddmembers t)
+  else countoddmembers t
 
 test_countoddmembers : countoddmembers [1,0,3,1,4,5] = 4
 test_countoddmembers = Refl
@@ -112,3 +112,41 @@ test_alternate3 = Refl
 
 test_alternate4 : alternate [] [20,30] = [20,30]
 test_alternate4 = Refl
+
+Bag : Type
+Bag = NatList
+
+count : (v : Nat) -> (s : Bag) -> Nat
+count _ [] = Z
+count v (h :: t) = if h == v then S (count v t) else count v t
+
+test_count1 : count 1 [1,2,3,1,4,1] = 3
+test_count1 = Refl
+
+test_count2 : count 6 [1,2,3,1,4,1] = 0
+test_count2 = Refl
+
+sum : Bag -> Bag -> Bag
+sum = (++)
+
+test_sum1 : count 1 (sum [1,2,3] [1,4,1]) = 3
+test_sum1 = Refl
+
+add : (v : Nat) -> (s : Bag) -> Bag
+add v s = v :: s
+
+test_add1 : count 1 (add 1 [1,3,1]) = 3
+test_add1 = Refl
+
+test_add2 : count 5 (add 1 [1,4,1]) = 0
+test_add2 = Refl
+
+member : (v : Nat) -> (s : Bag) -> Bool
+member _ [] = False
+member v (h :: t) = if h == v then True else member v t
+
+test_member1 : member 1 [1,4,1] = True
+test_member1 = Refl
+
+test_member2 : member 2 [1,4,1] = False
+test_member2 = Refl
