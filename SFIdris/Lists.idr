@@ -5,7 +5,10 @@ import Basics
 %hide Prelude.Basics.fst
 %hide Prelude.Basics.snd
 %hide Prelude.Nat.pred
+%hide Prelude.pred
 %hide Prelude.List.(++)
+%hide Prelude.List.length
+%hide Prelude.Strings.length
 
 %access public export
 %default total
@@ -74,7 +77,8 @@ tl (_ :: t) = t
 
 nonzeros : (l : NatList) -> NatList
 nonzeros [] = []
-nonzeros (h :: t) = if h == 0 then nonzeros t else h :: nonzeros t
+nonzeros (Z :: t) = nonzeros t
+nonzeros (h :: t) = h :: nonzeros t
 
 test_nonzeros : nonzeros [0,1,0,2,3,0,0] = [1,2,3]
 test_nonzeros = Refl
@@ -118,7 +122,10 @@ Bag = NatList
 
 count : (v : Nat) -> (s : Bag) -> Nat
 count _ [] = Z
-count v (h :: t) = if h == v then S (count v t) else count v t
+count v (h :: t) =
+  case beq_nat h v of 
+    True => S (count v t)
+    False => count v t
 
 test_count1 : count 1 [1,2,3,1,4,1] = 3
 test_count1 = Refl
@@ -154,9 +161,12 @@ test_member2 = Refl
 remove_one : (v : Nat) -> (s : Bag) -> Bag
 remove_one _ [] = []
 remove_one v l@(h :: t) =
-  if member v l
-  then if h == v then t else h :: remove_one v t
-  else l
+  case member v l of
+    True => 
+      case beq_nat h v of
+        True => t
+        False =>  h :: remove_one v t
+    False => l
 
 test_remove_one1 : count 5 (remove_one 5 [2,1,5,4,1]) = 0
 test_remove_one1 = Refl
@@ -199,3 +209,99 @@ test_subset1 = Refl
 
 test_subset2 : subset [1,2,2] [2,1,4,1] = False
 test_subset2 = Refl
+
+nil_app : (l : NatList) -> ([] ++ l) = l
+nil_app l = Refl
+
+tl_length_pred : (l : NatList) -> pred (length l) = length (tl l)
+tl_length_pred [] = Refl
+tl_length_pred (h :: t) = Refl
+
+app_assoc : (l1, l2, l3 : NatList) -> (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3)
+app_assoc [] l2 l3 = Refl
+app_assoc (h :: t) l2 l3 =
+  let inductiveHypothesis = app_assoc t l2 l3 in
+  rewrite inductiveHypothesis in Refl
+  
+rev : (l : NatList) -> NatList  
+rev [] = []
+rev (h :: t) = (rev t) ++ [h]
+
+app_length : (l1, l2 : NatList) -> length (l1 ++ l2) = (length l1) + (length l2)
+app_length [] l2 = Refl
+app_length (h :: t) l2 = rewrite app_length t l2 in Refl
+
+rev_length : (l : NatList) -> length (rev l) = length l
+rev_length [] = Refl
+rev_length (n :: l') =
+  rewrite app_length (rev l') [n] in
+  rewrite plusCommutative (length (rev l')) 1 in
+  let inductiveHypothesis = rev_length l' in
+    rewrite inductiveHypothesis in Refl
+
+nil_app_r : (l : NatList) -> (l ++ []) = l
+nil_app_r [] = Refl
+nil_app_r (n :: l') = rewrite nil_app_r l' in Refl
+
+rev_app_distr : (l1, l2 : NatList) -> rev (l1 ++ l2) = (rev l2) ++ (rev l1)
+rev_app_distr [] l2 = rewrite nil_app_r (rev l2) in Refl
+rev_app_distr (n :: l1') l2 =
+  rewrite rev_app_distr l1' l2 in
+  rewrite app_assoc (rev l2) (rev l1') [n] in Refl
+  
+rev_involutive : (l : NatList) -> rev (rev l) = l
+rev_involutive [] = Refl
+rev_involutive (n :: l') =
+  rewrite rev_app_distr (rev l') [n] in
+  rewrite rev_involutive l' in Refl
+
+app_assoc4 : (l1, l2, l3, l4 : NatList) ->
+             l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4
+app_assoc4 l1 l2 l3 l4 =
+  rewrite app_assoc (l1 ++ l2) l3 l4 in
+  rewrite sym (app_assoc l1 l2 (l3 ++ l4)) in Refl
+
+nonzeros_app : (l1, l2 : NatList) ->
+               nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2)
+nonzeros_app [] l2 = Refl
+nonzeros_app (n :: l1') l2 =
+  let iH = nonzeros_app l1' l2 in
+  case n of
+    Z => rewrite iH in Refl
+    (S k) => rewrite iH in Refl
+
+beq_NatList : (l1, l2 : NatList) -> Bool
+beq_NatList [] [] = True
+beq_NatList [] _  = False
+beq_NatList _ []  = False
+beq_NatList (h1 :: t1) (h2 :: t2) =
+  if beq_nat h1 h2 then beq_NatList t1 t2 else False
+
+test_beq_NatList1 : beq_NatList Nil Nil = True
+test_beq_NatList1 = Refl
+
+test_beq_NatList2 : beq_NatList [1,2,3] [1,2,3] = True
+test_beq_NatList2 = Refl
+
+test_beq_NatList3 : beq_NatList [1,2,3] [1,2,4] = False
+test_beq_NatList3 = Refl
+
+beq_NatList_refl : (l : NatList) -> True = beq_NatList l l
+beq_NatList_refl [] = Refl
+beq_NatList_refl (n :: l') =
+  rewrite sym (beq_nat_refl n) in
+  rewrite beq_NatList_refl l' in Refl
+
+count_member_nonzero : (s : Bag) -> lte 1 (count 1 (1 :: s)) = True
+count_member_nonzero [] = Refl
+count_member_nonzero (n :: s') = Refl
+
+ble_n_Sn : (n : Nat) -> lte n (S n) = True
+ble_n_Sn Z = Refl
+ble_n_Sn (S k) = rewrite ble_n_Sn k in Refl
+
+remove_decreases_count : (s : Bag) ->
+                         lte (count 0 (remove_one 0 s)) (count 0 s) = True
+remove_decreases_count [] = Refl
+remove_decreases_count (n :: s') = ?h
+--  rewrite remove_decreases_count s' in ?h
