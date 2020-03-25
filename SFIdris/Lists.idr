@@ -150,3 +150,52 @@ test_member1 = Refl
 
 test_member2 : member 2 [1,4,1] = False
 test_member2 = Refl
+
+remove_one : (v : Nat) -> (s : Bag) -> Bag
+remove_one _ [] = []
+remove_one v l@(h :: t) =
+  if member v l
+  then if h == v then t else h :: remove_one v t
+  else l
+
+test_remove_one1 : count 5 (remove_one 5 [2,1,5,4,1]) = 0
+test_remove_one1 = Refl
+
+test_remove_one2 : count 5 (remove_one 5 [2,1,4,1]) = 0
+test_remove_one2 = Refl
+
+test_remove_one3 : count 4 (remove_one 5 [2,1,5,4,1,4]) = 2
+test_remove_one3 = Refl
+
+test_remove_one4 : count 5 (remove_one 5 [2,1,5,4,5,1,4]) = 1
+test_remove_one4 = Refl
+
+remove_all : (v : Nat) -> (s : Bag) -> Bag
+remove_all v [] = []
+remove_all v l@(h :: t) =
+  if member v l
+  then if h == v then remove_all v t else h :: remove_all v t
+  else l
+
+test_remove_all1 : count 5 (remove_all 5 [2,1,5,4,1]) = 0
+test_remove_all1 = Refl
+
+test_remove_all2 : count 5 (remove_all 5 [2,1,4,1]) = 0
+test_remove_all2 = Refl
+
+test_remove_all3 : count 4 (remove_all 5 [2,1,5,4,1,4]) = 2
+test_remove_all3 = Refl
+
+test_remove_all4 : count 5 (remove_all 5 [2,1,5,4,5,1,4,5,1,4]) = 0
+test_remove_all4 = Refl
+
+subset : (s1: Bag) -> (s2 : Bag) -> Bool
+subset [] _ = True
+subset _ [] = False
+subset (h1 :: t1) s2 = if member h1 s2 then subset t1 (remove_one h1 s2) else False
+
+test_subset1 : subset [1,2] [2,1,4,1] = True
+test_subset1 = Refl
+
+test_subset2 : subset [1,2,2] [2,1,4,1] = False
+test_subset2 = Refl
