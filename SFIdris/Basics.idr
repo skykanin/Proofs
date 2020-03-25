@@ -151,6 +151,23 @@ namespace Playground2
   (==) (S k) (S j) = k == j
   -}
 
+beq_nat : (n, m : Nat) -> Bool
+beq_nat Z Z = True
+beq_nat Z (S m) = False
+beq_nat (S n) Z = False
+beq_nat (S n) (S m) = beq_nat n m
+  
+beq_nat_refl : (n : Nat) -> True = beq_nat n n
+beq_nat_refl Z = Refl
+beq_nat_refl (S k) =
+  rewrite beq_nat_refl k in Refl
+  
+eq_nat_refl : (n : Nat) -> True = (n == n)
+eq_nat_refl Z = Refl
+eq_nat_refl (S k) =
+  let iH = eq_nat_refl k in
+  rewrite iH in Refl
+
 plus_Z_n : (n : Nat) -> (0 + n) = n
 plus_Z_n n = Refl
   
