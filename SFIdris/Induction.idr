@@ -117,3 +117,43 @@ plus_swap' n m p =
   rewrite plus_assoc n m p in
   rewrite plus_assoc m n p in
   replace (plus_comm n m) {P = \x => (n + m) + p = x + p} Refl
+
+data Bin : Type where
+  O : Bin
+  D : Bin -> Bin
+  SD : Bin -> Bin
+  
+incr_bin : Bin -> Bin
+incr_bin O = SD O
+incr_bin (D x) = SD x
+incr_bin (SD x) = D (incr_bin x)
+
+bin_to_nat : Bin -> Nat
+bin_to_nat O = 0
+bin_to_nat (D x) = 2 * (bin_to_nat x)
+bin_to_nat (SD x) = S (2 * (bin_to_nat x))
+
+{-
+  Incrementing a binary number and then converting it to a (unary)
+  natural number yields the same result as first converting it to a
+  natural number and then incrementing.
+-}
+bin_to_nat_pres_incr : (b : Bin) -> S (bin_to_nat b) = bin_to_nat (incr_bin b)
+bin_to_nat_pres_incr O = Refl
+bin_to_nat_pres_incr (D x) = Refl
+bin_to_nat_pres_incr (SD x) =
+  let plusZ = \b => sym (plus_n_Z (bin_to_nat b)) in
+  rewrite plusZ x in
+  rewrite plusZ (incr_bin x) in
+  rewrite sym (bin_to_nat_pres_incr x) in
+  rewrite plus_n_Sm (bin_to_nat x) (bin_to_nat x) in Refl
+  
+nat_to_bin : Nat -> Bin
+nat_to_bin Z = O
+nat_to_bin (S k) = incr_bin (nat_to_bin k)
+
+nat_bin_nat : (n : Nat) -> bin_to_nat (nat_to_bin n) = n
+nat_bin_nat Z = Refl
+nat_bin_nat (S k) =
+  rewrite sym (bin_to_nat_pres_incr (nat_to_bin k)) in
+  rewrite nat_bin_nat k in Refl
