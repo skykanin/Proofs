@@ -307,7 +307,13 @@ rev_twice {l1} {l2} prf =
       b = rev_involutive l2 in
   replace b {P = \x => l1 = x} `apply` replace a {P = \x => x = rev (rev l2)} prf
 
-rev_injective : (l1, l2 : NatList) -> rev l1 = rev l2 -> l1 = l2
-rev_injective l1 l2 prf =
+rev_injective' : (l1, l2 : NatList) -> rev l1 = rev l2 -> l1 = l2
+rev_injective' l1 l2 prf =
   let p = cong prf {f = rev} in
   rev_twice {l1 = l1} {l2 = l2} p
+  
+rev_injective : (l1, l2 : NatList) -> rev l1 = rev l2 -> l1 = l2
+rev_injective l1 l2 prf =
+  rewrite sym (rev_involutive l1) in
+  rewrite prf in
+  rev_involutive l2
