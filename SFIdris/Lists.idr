@@ -300,3 +300,14 @@ remove_decreases_count (Z :: s') =
 remove_decreases_count ((S k) :: s') =
   let iH = remove_decreases_count s' in
   rewrite iH in Refl
+  
+rev_twice : {l1, l2 : NatList} -> rev (rev l1) = rev (rev l2) -> l1 = l2
+rev_twice {l1} {l2} prf =
+  let a = rev_involutive l1
+      b = rev_involutive l2 in
+  replace b {P = \x => l1 = x} `apply` replace a {P = \x => x = rev (rev l2)} prf
+
+rev_injective : (l1, l2 : NatList) -> rev l1 = rev l2 -> l1 = l2
+rev_injective l1 l2 prf =
+  let p = cong prf {f = rev} in
+  rev_twice {l1 = l1} {l2 = l2} p
