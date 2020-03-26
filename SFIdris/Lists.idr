@@ -295,5 +295,8 @@ ble_n_Sn (S k) = rewrite ble_n_Sn k in Refl
 remove_decreases_count : (s : Bag) ->
                          lte (count 0 (remove_one 0 s)) (count 0 s) = True
 remove_decreases_count [] = Refl
-remove_decreases_count (n :: s') = ?h
---  rewrite remove_decreases_count s' in ?h
+remove_decreases_count (Z :: s') =
+  rewrite ble_n_Sn (count Z s') in Refl
+remove_decreases_count ((S k) :: s') =
+  let iH = remove_decreases_count s' in
+  rewrite iH in Refl
