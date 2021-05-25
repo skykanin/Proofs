@@ -2,50 +2,51 @@ module Lists
 
 import Basics
 
-%hide Prelude.Basics.fst
-%hide Prelude.Basics.snd
-%hide Prelude.Nat.pred
-%hide Prelude.pred
+import Data.Nat as N
+
+%hide Prelude.count
 %hide Prelude.List.(++)
 %hide Prelude.List.length
 %hide Prelude.Strings.length
 
-%access public export
 %default total
 
+public export
 data NatProd : Type where
   Pair : Nat -> Nat -> NatProd
 
+public export
 fst : NatProd -> Nat
 fst (Pair x y) = x
 
+public export
 snd : NatProd -> Nat
 snd (Pair x y) = y
 
-syntax "(" [x] "," [y] ")" = Pair x y
+-- syntax "(" [x] "," [y] ")" = Pair x y
 
 fst' : NatProd -> Nat
-fst' (x, y) = x
+fst' (Pair x _) = x
 
 snd' : NatProd -> Nat
-snd' (x, y) = y
+snd' (Pair _ y) = y
 
 swap_pair : NatProd -> NatProd
-swap_pair (x, y) = (y, x)
+swap_pair (Pair x y) = (Pair y x)
 
 -- If we state things in a peculiar way, we can complete the proof with reflexivity
 surjective_pairing' : (n, m : Nat) -> (n, m) = (fst (n, m), snd (n, m))
 surjective_pairing' n m = Refl
 
 -- If we state it in a more natural way we have to expose the structure of p
-surjective_pairing : (p : NatProd) -> p = (fst p, snd p)
-surjective_pairing p = case p of (n, m) => Refl
+surjective_pairing : (p : NatProd) -> p = Pair (fst p) (snd p)
+surjective_pairing p = case p of (Pair n m) => Refl
 
-snd_fst_is_swap : (p : NatProd) -> (snd p, fst p) = swap_pair p
-snd_fst_is_swap (x, y) = Refl
+snd_fst_is_swap : (p : NatProd) -> Pair (snd p) (fst p) = swap_pair p
+snd_fst_is_swap (Pair x y) = Refl
 
 fst_swap_is_snd : (p : NatProd) -> fst (swap_pair p) = snd p
-fst_swap_is_snd (x, y) = Refl
+fst_swap_is_snd (Pair x y) = Refl
 
 data NatList : Type where
   Nil : NatList
@@ -67,8 +68,8 @@ infixr 7 ++
 (++) : (x, y : NatList) -> NatList
 (++) = app
 
-hd : (default : Nat) -> (l : NatList) -> Nat
-hd default [] = default
+hd : (d : Nat) -> (l : NatList) -> Nat
+hd d [] = d
 hd _ (h :: _) = h
 
 tl : (l : NatList) -> NatList
@@ -205,7 +206,7 @@ test_subset2 = Refl
 nil_app : (l : NatList) -> ([] ++ l) = l
 nil_app l = Refl
 
-tl_length_pred : (l : NatList) -> pred (length l) = length (tl l)
+tl_length_pred : (l : NatList) -> Basics.Numbers.pred (length l) = length (tl l)
 tl_length_pred [] = Refl
 tl_length_pred (h :: t) = Refl
 
@@ -305,11 +306,12 @@ rev_twice : {l1, l2 : NatList} -> rev (rev l1) = rev (rev l2) -> l1 = l2
 rev_twice {l1} {l2} prf =
   let a = rev_involutive l1
       b = rev_involutive l2 in
-  replace b {P = \x => l1 = x} `apply` replace a {P = \x => x = rev (rev l2)} prf
+  -- replace b {P = \x => l1 = x} `apply` replace a {P = \x => x = rev (rev l2)} prf
+  replace {p = \x => l1 = x} b `apply` replace {p = \x => x = rev (rev l2)} a prf
 
 rev_injective' : (l1, l2 : NatList) -> rev l1 = rev l2 -> l1 = l2
 rev_injective' l1 l2 prf =
-  let p = cong prf {f = rev} in
+  let p = cong rev prf in
   rev_twice {l1 = l1} {l2 = l2} p
   
 rev_injective : (l1, l2 : NatList) -> rev l1 = rev l2 -> l1 = l2
