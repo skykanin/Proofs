@@ -319,3 +319,28 @@ rev_injective l1 l2 prf =
   rewrite sym (rev_involutive l1) in
   rewrite prf in
   rev_involutive l2
+
+data NatOption : Type where
+  Some : Nat -> NatOption
+  None : NatOption
+
+option_elim : (d : Nat) -> (o : NatOption) -> Nat
+option_elim _ (Some k) = k
+option_elim d None = d
+
+hd_error : (l : NatList) -> NatOption
+hd_error [] = None
+hd_error (x :: _) = Some x
+
+test_hd_error1 : hd_error [] = None
+test_hd_error1 = Refl
+
+test_hd_error2 : hd_error [1] = Some 1
+test_hd_error2 = Refl
+
+test_hd_error3 : hd_error [5, 6] = Some 5
+test_hd_error3 = Refl
+
+option_elim_hd : (l : NatList) -> (d : Nat) -> hd d l = option_elim d (hd_error l)
+option_elim_hd [] _ = Refl
+option_elim_hd (x :: _) _ = Refl
