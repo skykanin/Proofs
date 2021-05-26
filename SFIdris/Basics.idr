@@ -2,6 +2,8 @@ module Basics
 
 %default total
 
+%hide Prelude.not
+
 namespace Days
   public export
   data Day = 
@@ -27,26 +29,29 @@ namespace Days
   testNextWeekday : (nextWeekday (nextWeekday Saturday)) = Tuesday
   testNextWeekday = Refl
 
-{-  
 namespace Booleans
+  {-
   %hide Bool
 
   data Bool : Type where
     True : Bool
     False : Bool
-  
- 
+  -}
+
+  public export
   not : (b : Bool) -> Bool
   not True = False
   not False = True
-  
+
+  public export
   andb : (b1 : Bool) -> (b2 : Bool) -> Bool
   andb True b2 = b2
   andb False b2 = False
   
+  public export
   nandb : (b1: Bool) -> (b2 : Bool) -> Bool
   nandb = (not .) . andb
-  
+
   test_nandb1 : (nandb True False) = True
   test_nandb1 = Refl
   
@@ -58,9 +63,15 @@ namespace Booleans
   
   test_nandb4 : (nandb True True) = False
   test_nandb4 = Refl
--}
 
 namespace Numbers
+  {-
+  %hide Nat
+  data Nat : Type where
+         Z : Nat
+         S : Nat -> Nat
+         -}
+
   public export
   pred : (n : Nat) -> Nat
   pred Z = Z
