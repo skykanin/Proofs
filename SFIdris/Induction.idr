@@ -4,6 +4,8 @@ import Basics as B
 import Prelude.Interfaces
 import Data.Nat
 
+%hide Prelude.not
+
 %default total
 
 public export
